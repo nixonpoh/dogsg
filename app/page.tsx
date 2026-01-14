@@ -6,7 +6,9 @@ const MapDirectory = dynamic(() => import("@/components/MapDirectory"), { ssr: f
 export default function HomePage() {
   return (
     <main className="min-h-screen">
-      <div className="mx-auto max-w-6xl px-4 py-8">
+      <div className="mx-auto max-w-6xl px-4 py-0">
+
+
         <MapDirectory />
       </div>
     </main>

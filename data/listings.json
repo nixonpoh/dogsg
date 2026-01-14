@@ -7350,20 +7350,7 @@
     "verifiedBy": "reviews",
     "openNow": null
   },
-  {
-    "id": "ChIJ4bGFlesX2jERYJqccOjQANU",
-    "name": "PetPat Jalan Pelikat - Cat Grooming Salon",
-    "category": "groomer",
-    "address": "183 Jln Pelikat, #B1-41 The Promenade, Singapore 537643",
-    "lat": 1.3554602999999998,
-    "lng": 103.8881644,
-    "website": "http://petpatsg.com/",
-    "phone": "8299 1040",
-    "rating": 4.9,
-    "userRatingCount": 317,
-    "verificationStatus": "verified",
-    "openNow": null
-  },
+  
   {
     "id": "ChIJUxPeQkEP2jER420RJSRd7OU",
     "name": "Pawsperity Boutique",
@@ -7578,20 +7565,7 @@
     "verificationStatus": "verified",
     "openNow": null
   },
-  {
-    "id": "ChIJ_cHQbswX2jERl2xu1T57fVE",
-    "name": "Hanis The Groomer - Cat Grooming Service",
-    "category": "groomer",
-    "address": "Blk 139 Tampines St. 11, #01-34, Singapore 521139",
-    "lat": 1.3465106999999998,
-    "lng": 103.9445593,
-    "website": "http://www.hanisthegroomer.com/",
-    "phone": "9100 1737",
-    "rating": 4.8,
-    "userRatingCount": 162,
-    "verificationStatus": "verified",
-    "openNow": null
-  },
+  
   {
     "id": "ChIJJ4_RO0492jERXvJ7_1bortY",
     "name": "Masmasgroomers Pet Grooming Centre",
@@ -7863,20 +7837,7 @@
     "verifiedBy": "reviews",
     "openNow": null
   },
-  {
-    "id": "ChIJS5xJ1R8X2jERDQMCC_w3mxc",
-    "name": "PetPat Upper Thomson - Cat Grooming Salon",
-    "category": "groomer",
-    "address": "221A Upper Thomson Rd, Singapore 574353",
-    "lat": 1.3527946,
-    "lng": 103.83453499999999,
-    "website": "http://petpatsg.com/",
-    "phone": "8299 1040",
-    "rating": 5,
-    "userRatingCount": 109,
-    "verificationStatus": "verified",
-    "openNow": null
-  },
+ 
   {
     "id": "ChIJlVP9bcEb2jERHuR0t9PHUHw",
     "name": "Just4Pets Grooming - Holland Village",
@@ -7906,34 +7867,8 @@
     "verifiedBy": "reviews",
     "openNow": null
   },
-  {
-    "id": "ChIJb7IR4mgX2jERgbNsNpxP3Co",
-    "name": "Miau - Cat Grooming & Cattery Singapore",
-    "category": "groomer",
-    "address": "51 Jln Tua Kong, Singapore 457250",
-    "lat": 1.3157689,
-    "lng": 103.925483,
-    "website": "http://www.studiomiau.co/",
-    "phone": "8688 6884",
-    "rating": 5,
-    "userRatingCount": 102,
-    "verificationStatus": "verified",
-    "openNow": null
-  },
-  {
-    "id": "ChIJ5_DcolkZ2jERvJzfUjYfwy8",
-    "name": "PetPat Joo Chiat - Cat Grooming Salon",
-    "category": "groomer",
-    "address": "323 Joo Chiat Rd, Level 2, Singapore 472580",
-    "lat": 1.3091732999999999,
-    "lng": 103.90269219999999,
-    "website": "https://petpatsg.com/",
-    "phone": "8299 1040",
-    "rating": 5,
-    "userRatingCount": 101,
-    "verificationStatus": "verified",
-    "openNow": null
-  },
+  
+ 
   {
     "id": "ChIJ0WTbHdkZ2jERkBlXk8mf1r0",
     "name": "Holiday Inn Express & Suites Singapore Novena by IHG",
@@ -8833,7 +8768,7 @@
   {
     "id": "ChIJw_PuxFYW2jERKfH6ygeyoXg",
     "name": "The Lovely Pets Puppies Singapore",
-    "category": "supplies",
+    "category": "groomer",
     "address": "46 Jln Limbok, Singapore 548728",
     "lat": 1.365017,
     "lng": 103.8754843,
@@ -8873,20 +8808,7 @@
     "verificationStatus": "verified",
     "openNow": null
   },
-  {
-    "id": "ChIJW4pWGhwZ2jERCtqKjGj8drA",
-    "name": "Hamster Haven Pet Shop",
-    "category": "supplies",
-    "address": "6001 Beach Rd, #B1-94, Singapore 199589",
-    "lat": 1.3020028,
-    "lng": 103.8642024,
-    "website": "https://www.instagram.com/hamster_haven_singapore/",
-    "phone": "9646 7908",
-    "rating": 4.7,
-    "userRatingCount": 206,
-    "verificationStatus": "verified",
-    "openNow": null
-  },
+ 
   {
     "id": "ChIJgUtOdyY92jERRDpwK5I0lhQ",
     "name": "Just Betta @ East Village Mall",
@@ -8929,33 +8851,8 @@
     "verificationStatus": "verified",
     "openNow": null
   },
-  {
-    "id": "ChIJ_aadaR0Z2jERE10GC7buyk0",
-    "name": "Xi Meow Cattery",
-    "category": "supplies",
-    "address": "277 Joo Chiat Rd, #02-01, Singapore 427531",
-    "lat": 1.3101488,
-    "lng": 103.9019458,
-    "website": "https://ximeowsg.com/",
-    "phone": "8285 9691",
-    "rating": 5,
-    "userRatingCount": 191,
-    "verificationStatus": "verified",
-    "openNow": null
-  },
-  {
-    "id": "ChIJDWK3ezAZ2jERW-JL_fvaYyY",
-    "name": "Fluffydolls Cattery",
-    "category": "supplies",
-    "address": "555A Balestier Rd, Singapore 329871",
-    "lat": 1.3263524,
-    "lng": 103.8448264,
-    "website": "https://fluffydollscattery.com/",
-    "rating": 4.9,
-    "userRatingCount": 190,
-    "verificationStatus": "verified",
-    "openNow": null
-  },
+ 
+ 
   {
     "id": "ChIJN2vXMyIO2jERvs7R8j2XoBs",
     "name": "Nippon Koi Farm",
@@ -9095,20 +8992,7 @@
     "verificationStatus": "verified",
     "openNow": null
   },
-  {
-    "id": "ChIJUdAhjuoX2jERCQBcXz7Nzgg",
-    "name": "OMO OMO PET SHOP",
-    "category": "supplies",
-    "address": "259 Upper Thomson Rd, Singapore 574386",
-    "lat": 1.3535092,
-    "lng": 103.8334457,
-    "phone": "8797 7369",
-    "rating": 4.7,
-    "userRatingCount": 145,
-    "verificationStatus": "verified",
-    "verifiedBy": "reviews",
-    "openNow": null
-  },
+  
   {
     "id": "ChIJy_LGGPAZ2jERPr7Lw6NLYv8",
     "name": "Pawsome Singapore",

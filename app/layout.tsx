@@ -16,7 +16,7 @@ export default function RootLayout({
       <body className="bg-[#FFFBEF] text-black">
         {/* GLOBAL HEADER */}
         <header className="bg-white border-b">
-          <div className="mx-auto max-w-6xl px-4 py-5">
+          <div className="mx-auto max-w-6xl px-4 py-2">
             <a href="/" className="flex items-center gap-4 w-fit">
               {/* Logo */}
               {/* eslint-disable-next-line @next/next/no-img-element */}

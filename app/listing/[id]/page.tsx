@@ -98,7 +98,7 @@ export default function ListingPage({ params }: { params: { id: string } }) {
 
   return (
     <main className="min-h-screen">
-      <div className="mx-auto max-w-5xl px-4 py-10">
+      <div className="mx-auto max-w-5xl px-4 py-2">
         <a href="/" className="text-sm font-semibold underline">
           ← Back to map
         </a>
