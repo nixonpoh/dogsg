@@ -74,7 +74,6 @@ export default function MapDirectory() {
   const mapRef = useRef<Map | null>(null);
   const userMarkerRef = useRef<mapboxgl.Marker | null>(null);
 
-
   const [selectedCategories, setSelectedCategories] = useState<Set<Category>>(
     new Set(Object.keys(CATEGORY_LABELS) as Category[])
   );
@@ -278,34 +277,28 @@ export default function MapDirectory() {
     if (source) source.setData(geojson as any);
   }, [geojson]);
 
-  // Fly to user location when set
-useEffect(() => {
-  const map = mapRef.current;
-  if (!map || !userPos) return;
+  // Fly to user location when set + show blue dot
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map || !userPos) return;
 
-  // Fly to user
-  map.flyTo({ center: [userPos.lng, userPos.lat], zoom: 13 });
+    map.flyTo({ center: [userPos.lng, userPos.lat], zoom: 13 });
 
-  // Remove old marker if exists
-  if (userMarkerRef.current) {
-    userMarkerRef.current.remove();
-    userMarkerRef.current = null;
-  }
+    if (userMarkerRef.current) {
+      userMarkerRef.current.remove();
+      userMarkerRef.current = null;
+    }
 
-  // Create blue dot
-  const el = document.createElement("div");
-  el.style.width = "14px";
-  el.style.height = "14px";
-  el.style.borderRadius = "50%";
-  el.style.background = "#2563eb"; // blue-600
-  el.style.border = "3px solid white";
-  el.style.boxShadow = "0 0 0 6px rgba(37, 99, 235, 0.25)";
+    const el = document.createElement("div");
+    el.style.width = "14px";
+    el.style.height = "14px";
+    el.style.borderRadius = "50%";
+    el.style.background = "#2563eb"; // blue-600
+    el.style.border = "3px solid white";
+    el.style.boxShadow = "0 0 0 6px rgba(37, 99, 235, 0.25)";
 
-  userMarkerRef.current = new mapboxgl.Marker(el)
-    .setLngLat([userPos.lng, userPos.lat])
-    .addTo(map);
-}, [userPos]);
-
+    userMarkerRef.current = new mapboxgl.Marker(el).setLngLat([userPos.lng, userPos.lat]).addTo(map);
+  }, [userPos]);
 
   function toggleCategory(cat: Category) {
     setSelectedCategories((prev) => {
@@ -341,7 +334,14 @@ useEffect(() => {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[420px_1fr] gap-4">
+    // ✅ Columns swapped: Map (left) + Filters/Results (right)
+    <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-4">
+      {/* LEFT: MAP */}
+      <div className="rounded-2xl border bg-white overflow-hidden shadow-sm">
+        <div ref={mapContainerRef} className="h-[72vh] lg:h-[82vh] w-full" />
+      </div>
+
+      {/* RIGHT: FILTERS + RESULTS */}
       <div className="rounded-2xl border bg-white p-4 shadow-sm">
         <div className="flex items-start justify-between gap-3">
           <div>
@@ -438,10 +438,6 @@ useEffect(() => {
             ) : null}
           </div>
         </div>
-      </div>
-
-      <div className="rounded-2xl border bg-white overflow-hidden shadow-sm">
-        <div ref={mapContainerRef} className="h-[72vh] lg:h-[82vh] w-full" />
       </div>
     </div>
   );
