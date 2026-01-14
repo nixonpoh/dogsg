@@ -106,9 +106,12 @@ function catButtonClass(cat: Category, on: boolean) {
 
 function catPillClass(cat: Category) {
   const c = CAT_COLORS[cat];
-  return ["inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] ring-1 font-semibold", c.bg, c.text, c.ring].join(
-    " "
-  );
+  return [
+    "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] ring-1 font-semibold",
+    c.bg,
+    c.text,
+    c.ring,
+  ].join(" ");
 }
 
 export default function MapDirectory() {
@@ -175,7 +178,6 @@ export default function MapDirectory() {
     mapRef.current = map;
 
     map.on("load", () => {
-      // GeoJSON source with clustering
       map.addSource("listings", {
         type: "geojson",
         data: geojson as any,
@@ -197,7 +199,6 @@ export default function MapDirectory() {
         },
       });
 
-      // Cluster counts
       map.addLayer({
         id: "cluster-count",
         type: "symbol",
@@ -269,7 +270,6 @@ export default function MapDirectory() {
         if (clusterId === undefined) return;
 
         const source = map.getSource("listings") as GeoJSONSource;
-
         (source as any).getClusterExpansionZoom(clusterId, (err: unknown, zoom: number) => {
           if (err) return;
           const coords = (features[0].geometry as any).coordinates as [number, number];
@@ -286,41 +286,36 @@ export default function MapDirectory() {
         const p = f.properties as any;
 
         const cat = p.category as Category;
-        const status = (p.verificationStatus || "").toString();
         const rating = p.rating ? `${p.rating}⭐` : "";
         const reviews = p.userRatingCount ? `${p.userRatingCount} reviews` : "";
 
         const catColor = CAT_COLORS[cat]?.hex ?? "#111111";
         const catTextColor = cat === "hotel" ? "#111111" : "#ffffff";
 
+        // Fun font stack (no external font needed)
+        const funFont =
+          "ui-rounded, 'SF Pro Rounded', 'Segoe UI Rounded', 'Nunito', 'Quicksand', system-ui, -apple-system, Segoe UI, Roboto, Arial";
+
         new mapboxgl.Popup({ offset: 18 })
           .setLngLat(coords)
           .setHTML(
-            `<div style="font-family: ui-sans-serif;">
+            `<div style="font-family:${funFont};">
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-                <span style="font-weight:800;">${p.name}</span>
-                <span style="font-size:11px;padding:2px 8px;border-radius:999px;background:${catColor};color:${catTextColor};border:1px solid rgba(0,0,0,.1);">
+                <a href="/listing/${p.id}" style="font-weight:900;text-decoration:none;color:#111111;">
+                  ${p.name}
+                </a>
+                <span style="font-size:11px;padding:2px 8px;border-radius:999px;background:${catColor};color:${catTextColor};border:1px solid rgba(0,0,0,.1);font-weight:800;">
                   ${CATEGORY_LABELS[cat] ?? ""}
                 </span>
               </div>
               <div style="font-size:12px;opacity:.85;margin-bottom:6px;">${p.address}</div>
               ${
                 rating || reviews
-                  ? `<div style="font-size:12px;opacity:.85;margin-top:6px;">${[rating, reviews]
+                  ? `<div style="font-size:12px;opacity:.9;margin-top:6px;"><b>Google:</b> ${[rating, reviews]
                       .filter(Boolean)
                       .join(" • ")}</div>`
                   : ""
               }
-              ${
-                status
-                  ? `<div style="font-size:12px;opacity:.85;margin-top:6px;"><b>${status}</b></div>`
-                  : ""
-              }
-              <div style="margin-top:10px;">
-                <a href="/listing/${p.id}" style="font-size:12px;text-decoration:underline;color:#EC4899;font-weight:700;">
-                  Open details →
-                </a>
-              </div>
             </div>`
           )
           .addTo(map);
