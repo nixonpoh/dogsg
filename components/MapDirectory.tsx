@@ -67,6 +67,53 @@ function haversineKm(a: { lat: number; lng: number }, b: { lat: number; lng: num
 
 type ListingWithDistance = Listing & { distanceKm: number | null };
 
+/**
+ * Category palette (requested):
+ * - cafes: pastel pink
+ * - malls: pastel blue
+ * - hotels: pastel yellow
+ * - pet supplies: pastel orange
+ * - parks: pastel green
+ * - vets: black
+ * - cluster: pink
+ */
+const CAT_COLORS = {
+  cafe: { bg: "bg-pink-200", ring: "ring-pink-300", text: "text-black", hex: "#FBCFE8" }, // pink-200
+  mall: { bg: "bg-blue-200", ring: "ring-blue-300", text: "text-black", hex: "#BFDBFE" }, // blue-200
+  hotel: { bg: "bg-yellow-200", ring: "ring-yellow-300", text: "text-black", hex: "#FEF08A" }, // yellow-200
+  supplies: { bg: "bg-orange-200", ring: "ring-orange-300", text: "text-black", hex: "#FED7AA" }, // orange-200
+  park: { bg: "bg-green-200", ring: "ring-green-300", text: "text-black", hex: "#BBF7D0" }, // green-200
+  vet: { bg: "bg-black", ring: "ring-black/40", text: "text-white", hex: "#111111" }, // black-ish
+  groomer: { bg: "bg-fuchsia-200", ring: "ring-fuchsia-300", text: "text-black", hex: "#F5D0FE" }, // (not specified; kept fun/pinkish)
+} satisfies Record<Category, { bg: string; ring: string; text: string; hex: string }>;
+
+function catButtonClass(cat: Category, on: boolean) {
+  const c = CAT_COLORS[cat];
+  if (on) {
+    return [
+      "rounded-full px-3 py-1.5 text-sm border transition ring-2",
+      c.bg,
+      c.text,
+      c.ring,
+      "border-black/10",
+      "hover:opacity-90",
+    ].join(" ");
+  }
+  return [
+    "rounded-full px-3 py-1.5 text-sm border transition",
+    "bg-white",
+    "hover:bg-black/5",
+    "border-black/15",
+  ].join(" ");
+}
+
+function catPillClass(cat: Category) {
+  const c = CAT_COLORS[cat];
+  return ["inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] ring-1", c.bg, c.text, c.ring].join(
+    " "
+  );
+}
+
 export default function MapDirectory() {
   const token = process.env.NEXT_PUBLIC_MAPBOX_TOKEN;
 
@@ -112,7 +159,6 @@ export default function MapDirectory() {
     };
   }, [filtered]);
 
-  // Init map once
   useEffect(() => {
     if (!token) return;
     if (!mapContainerRef.current) return;
@@ -123,7 +169,7 @@ export default function MapDirectory() {
     const map = new mapboxgl.Map({
       container: mapContainerRef.current,
       style: "mapbox://styles/mapbox/streets-v12",
-      center: [103.8198, 1.3521], // Singapore
+      center: [103.8198, 1.3521],
       zoom: 10.8,
     });
 
@@ -131,7 +177,6 @@ export default function MapDirectory() {
     mapRef.current = map;
 
     map.on("load", () => {
-      // GeoJSON source with clustering
       map.addSource("listings", {
         type: "geojson",
         data: geojson as any,
@@ -140,7 +185,7 @@ export default function MapDirectory() {
         clusterRadius: 50,
       });
 
-      // Cluster circles
+      // ✅ Cluster circles (PINK)
       map.addLayer({
         id: "clusters",
         type: "circle",
@@ -148,12 +193,11 @@ export default function MapDirectory() {
         filter: ["has", "point_count"],
         paint: {
           "circle-radius": ["step", ["get", "point_count"], 16, 20, 22, 50, 28, 100, 34],
-          "circle-color": "#111111",
-          "circle-opacity": 0.85,
+          "circle-color": "#EC4899", // pink-500
+          "circle-opacity": 0.9,
         },
       });
 
-      // Cluster counts
       map.addLayer({
         id: "cluster-count",
         type: "symbol",
@@ -168,7 +212,7 @@ export default function MapDirectory() {
         },
       });
 
-      // Unclustered points as circles (reliable "pins")
+      // ✅ Unclustered pins: category-colored circles
       map.addLayer({
         id: "unclustered-circle",
         type: "circle",
@@ -176,13 +220,31 @@ export default function MapDirectory() {
         filter: ["!", ["has", "point_count"]],
         paint: {
           "circle-radius": 8,
-          "circle-color": "#111111",
+          "circle-color": [
+            "match",
+            ["get", "category"],
+            "cafe",
+            CAT_COLORS.cafe.hex,
+            "mall",
+            CAT_COLORS.mall.hex,
+            "hotel",
+            CAT_COLORS.hotel.hex,
+            "supplies",
+            CAT_COLORS.supplies.hex,
+            "park",
+            CAT_COLORS.park.hex,
+            "vet",
+            CAT_COLORS.vet.hex,
+            "groomer",
+            CAT_COLORS.groomer.hex,
+            "#111111",
+          ],
           "circle-stroke-width": 2,
           "circle-stroke-color": "#ffffff",
         },
       });
 
-      // Emoji label on top of the circle
+      // Emoji label
       map.addLayer({
         id: "unclustered-label",
         type: "symbol",
@@ -194,11 +256,10 @@ export default function MapDirectory() {
           "text-allow-overlap": true,
         },
         paint: {
-          "text-color": "#ffffff",
+          "text-color": "#111111",
         },
       });
 
-      // Click cluster -> zoom in
       map.on("click", "clusters", (e: MapMouseEvent) => {
         const features = map.queryRenderedFeatures(e.point, { layers: ["clusters"] });
         if (!features.length) return;
@@ -207,16 +268,13 @@ export default function MapDirectory() {
         if (clusterId === undefined) return;
 
         const source = map.getSource("listings") as GeoJSONSource;
-
-        // Mapbox runtime supports this; TS typing may not.
         (source as any).getClusterExpansionZoom(clusterId, (err: unknown, zoom: number) => {
           if (err) return;
           const coords = (features[0].geometry as any).coordinates as [number, number];
-          map.easeTo({ center: coords, zoom: zoom + 1 }); // +1 helps reveal points
+          map.easeTo({ center: coords, zoom: zoom + 1 });
         });
       });
 
-      // Click point -> popup
       map.on("click", "unclustered-circle", (e: any) => {
         const f = e.features?.[0];
         if (!f) return;
@@ -229,13 +287,34 @@ export default function MapDirectory() {
         const rating = p.rating ? `${p.rating}⭐` : "";
         const reviews = p.userRatingCount ? `${p.userRatingCount} reviews` : "";
 
+        const catColor =
+          cat === "cafe"
+            ? CAT_COLORS.cafe.hex
+            : cat === "mall"
+            ? CAT_COLORS.mall.hex
+            : cat === "hotel"
+            ? CAT_COLORS.hotel.hex
+            : cat === "supplies"
+            ? CAT_COLORS.supplies.hex
+            : cat === "park"
+            ? CAT_COLORS.park.hex
+            : cat === "vet"
+            ? CAT_COLORS.vet.hex
+            : CAT_COLORS.groomer.hex;
+
+        const catTextColor = cat === "vet" ? "#ffffff" : "#111111";
+
         new mapboxgl.Popup({ offset: 18 })
           .setLngLat(coords)
           .setHTML(
             `<div style="font-family: ui-sans-serif;">
-              <div style="font-weight:700;margin-bottom:4px;">${p.name}</div>
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+                <span style="font-weight:800;">${p.name}</span>
+                <span style="font-size:11px;padding:2px 8px;border-radius:999px;background:${catColor};color:${catTextColor};border:1px solid rgba(0,0,0,.08);">
+                  ${CATEGORY_LABELS[cat] ?? ""}
+                </span>
+              </div>
               <div style="font-size:12px;opacity:.85;margin-bottom:6px;">${p.address}</div>
-              <div style="font-size:12px;">${CATEGORY_LABELS[cat] ?? ""}</div>
               ${
                 rating || reviews
                   ? `<div style="font-size:12px;opacity:.85;margin-top:6px;">${[rating, reviews]
@@ -248,8 +327,10 @@ export default function MapDirectory() {
                   ? `<div style="font-size:12px;opacity:.85;margin-top:6px;"><b>${status}</b></div>`
                   : ""
               }
-              <div style="margin-top:8px;">
-                <a href="/listing/${p.id}" style="font-size:12px;text-decoration:underline;">Open details</a>
+              <div style="margin-top:10px;">
+                <a href="/listing/${p.id}" style="font-size:12px;text-decoration:underline;color:#EC4899;font-weight:700;">
+                  Open details →
+                </a>
               </div>
             </div>`
           )
@@ -266,9 +347,8 @@ export default function MapDirectory() {
       map.remove();
       mapRef.current = null;
     };
-  }, [token]); // IMPORTANT: init once
+  }, [token]); // init once
 
-  // Update geojson data when filters change
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -277,7 +357,6 @@ export default function MapDirectory() {
     if (source) source.setData(geojson as any);
   }, [geojson]);
 
-  // Fly to user location when set + show blue dot
   useEffect(() => {
     const map = mapRef.current;
     if (!map || !userPos) return;
@@ -289,6 +368,7 @@ export default function MapDirectory() {
       userMarkerRef.current = null;
     }
 
+    // Fun pink-ish blue dot? (kept blue for location clarity; tell me if you want pink)
     const el = document.createElement("div");
     el.style.width = "14px";
     el.style.height = "14px";
@@ -334,23 +414,26 @@ export default function MapDirectory() {
   }
 
   return (
-    // ✅ Columns swapped: Map (left) + Filters/Results (right)
     <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-4">
       {/* LEFT: MAP */}
-      <div className="rounded-2xl border bg-white overflow-hidden shadow-sm">
+      <div className="rounded-2xl border bg-white overflow-hidden shadow-sm ring-1 ring-pink-200">
         <div ref={mapContainerRef} className="h-[72vh] lg:h-[82vh] w-full" />
       </div>
 
       {/* RIGHT: FILTERS + RESULTS */}
-      <div className="rounded-2xl border bg-white p-4 shadow-sm">
+      <div className="rounded-2xl border bg-white p-4 shadow-sm ring-1 ring-pink-200">
         <div className="flex items-start justify-between gap-3">
           <div>
-            <div className="text-lg font-extrabold">Find dog-friendly places 🐾</div>
+            <div className="text-lg font-extrabold">
+              Find dog-friendly places <span className="text-pink-500">🐾</span>
+            </div>
             <div className="text-sm opacity-75">Use location, filter categories, explore.</div>
           </div>
+
+          {/* Pink theme primary button */}
           <button
             onClick={useMyLocation}
-            className="rounded-xl px-3 py-2 text-sm font-semibold bg-black text-white hover:opacity-90"
+            className="rounded-xl px-3 py-2 text-sm font-extrabold bg-pink-500 text-white hover:bg-pink-600 shadow-sm"
           >
             Use my location
           </button>
@@ -366,14 +449,7 @@ export default function MapDirectory() {
             {(Object.keys(CATEGORY_LABELS) as Category[]).map((cat) => {
               const on = selectedCategories.has(cat);
               return (
-                <button
-                  key={cat}
-                  onClick={() => toggleCategory(cat)}
-                  className={[
-                    "rounded-full px-3 py-1.5 text-sm border transition",
-                    on ? "bg-black text-white" : "bg-white hover:bg-black/5",
-                  ].join(" ")}
-                >
+                <button key={cat} onClick={() => toggleCategory(cat)} className={catButtonClass(cat, on)}>
                   {CATEGORY_LABELS[cat]}
                 </button>
               );
@@ -393,7 +469,7 @@ export default function MapDirectory() {
             value={radiusKm}
             onChange={(e) => setRadiusKm(Number(e.target.value))}
             disabled={!userPos}
-            className="mt-2 w-full"
+            className="mt-2 w-full accent-pink-500"
           />
         </div>
 
@@ -404,27 +480,34 @@ export default function MapDirectory() {
               <button
                 key={l.id}
                 onClick={() => window.location.assign(`/listing/${l.id}`)}
-                className="w-full text-left rounded-2xl border p-3 hover:bg-black/5 transition"
+                className="w-full text-left rounded-2xl border p-3 hover:bg-pink-50 transition"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="font-bold">{l.name}</div>
-                  {l.verificationStatus ? (
-                    <span
-                      className={[
-                        "text-[11px] px-2 py-1 rounded-full border whitespace-nowrap",
-                        l.verificationStatus === "verified" ? "bg-black text-white" : "bg-white",
-                      ].join(" ")}
-                    >
-                      {l.verificationStatus}
-                    </span>
-                  ) : null}
+
+                  <div className="flex items-center gap-2">
+                    {/* category pill */}
+                    <span className={catPillClass(l.category)}>{CATEGORY_LABELS[l.category]}</span>
+
+                    {l.verificationStatus ? (
+                      <span
+                        className={[
+                          "text-[11px] px-2 py-1 rounded-full border whitespace-nowrap font-semibold",
+                          l.verificationStatus === "verified"
+                            ? "bg-pink-500 text-white border-pink-500"
+                            : "bg-white",
+                        ].join(" ")}
+                      >
+                        {l.verificationStatus}
+                      </span>
+                    ) : null}
+                  </div>
                 </div>
 
                 <div className="text-sm opacity-75">{l.address}</div>
 
                 <div className="text-xs opacity-70 mt-1">
-                  {CATEGORY_LABELS[l.category]}
-                  {l.distanceKm != null ? ` • ${l.distanceKm.toFixed(1)} km` : ""}
+                  {l.distanceKm != null ? `📍 ${l.distanceKm.toFixed(1)} km` : ""}
                   {typeof l.rating === "number" ? ` • ${l.rating}⭐` : ""}
                   {typeof l.userRatingCount === "number" ? ` • ${l.userRatingCount} reviews` : ""}
                 </div>
