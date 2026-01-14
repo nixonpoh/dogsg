@@ -20,9 +20,6 @@ type Listing = {
 
   note?: string;
 
-  // ✅ NEW
-  writeup?: string;
-
   rating?: number | null;
   userRatingCount?: number | null;
 
