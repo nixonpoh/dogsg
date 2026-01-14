@@ -97,7 +97,8 @@ export default function ListingPage({ params }: { params: { id: string } }) {
   const showOpenNow = typeof listing.openNow === "boolean";
 
   return (
-    <main className="min-h-screen">
+    <main className="h-full overflow-auto">
+
       <div className="mx-auto max-w-5xl px-4 py-2">
         <a href="/" className="text-sm font-semibold underline">
           ← Back to map
@@ -111,27 +112,23 @@ export default function ListingPage({ params }: { params: { id: string } }) {
               <div>
                 <div className="text-xs opacity-70">{CATEGORY_LABELS[listing.category]}</div>
                 <h1 className="mt-2 text-3xl md:text-4xl font-extrabold tracking-tight">{listing.name}</h1>
-                <div className="mt-2 text-sm opacity-80">{listing.address}</div>
+                <div className="mt-2 text-sm opacity-80">
+  <span className="font-semibold">Address:</span> {listing.address}
+</div>
+
 
                 {(typeof listing.rating === "number" || typeof listing.userRatingCount === "number") && (
-                  <div className="mt-2 text-sm opacity-80">
-                    {typeof listing.rating === "number" ? `${listing.rating}⭐` : ""}
-                    {typeof listing.userRatingCount === "number" ? ` • ${listing.userRatingCount} reviews` : ""}
-                  </div>
-                )}
+  <div className="mt-2 text-sm opacity-80">
+    <span className="font-semibold">From Google: </span>{" "}
+    {typeof listing.rating === "number" ? `${listing.rating}⭐` : ""}
+    {typeof listing.userRatingCount === "number" ? ` • ${listing.userRatingCount} reviews` : ""}
+  </div>
+)}
+
               </div>
 
               <div className="flex flex-col items-end gap-2">
-                {listing.verificationStatus && (
-                  <span
-                    className={[
-                      "text-[11px] px-2 py-1 rounded-full border whitespace-nowrap",
-                      listing.verificationStatus === "verified" ? "bg-black text-white border-black" : "bg-white",
-                    ].join(" ")}
-                  >
-                    {listing.verificationStatus}
-                  </span>
-                )}
+               
 
                 {showOpenNow && (
                   <span
@@ -153,40 +150,75 @@ export default function ListingPage({ params }: { params: { id: string } }) {
               </div>
             )}
 
+
+
+
+
+{/* ACTIONS ABOVE MAP */}
+<div className="mt-4 flex flex-col gap-2">
+  {website && (
+    <a
+      href={website}
+      target="_blank"
+      rel="noreferrer"
+      className="w-full rounded-xl border px-4 py-2 text-sm font-semibold hover:bg-black/5"
+    >
+      Website ({prettyUrl(website)})
+    </a>
+  )}
+
+  {phone && (
+    <a
+      href={`tel:${phone}`}
+      className="w-full rounded-xl border px-4 py-2 text-sm font-semibold hover:bg-black/5"
+    >
+      Call {phone}
+    </a>
+  )}
+
+  <a
+    href={googleMapsPinUrl}
+    target="_blank"
+    rel="noreferrer"
+    className="w-full rounded-xl border px-4 py-2 text-sm font-semibold hover:bg-black/5"
+  >
+    Open in Google Maps
+  </a>
+</div>
+
+
+            
+
+
+
+
+
             {/* MAP */}
             <div className="mt-6">
               <div className="text-sm font-semibold mb-2">Map</div>
               <ListingMiniMap lat={listing.lat} lng={listing.lng} name={listing.name} />
             </div>
 
-            {/* ACTIONS BELOW MAP (removed Navigate + Search on Google) */}
-            <div className="mt-4 flex flex-wrap gap-2">
-              <a
-                href={googleMapsPinUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="rounded-xl border px-4 py-2 text-sm font-semibold hover:bg-black/5"
-              >
-                Open in Google Maps
-              </a>
 
-              {website && (
-                <a
-                  href={website}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="rounded-xl border px-4 py-2 text-sm font-semibold hover:bg-black/5"
-                >
-                  Website ({prettyUrl(website)})
-                </a>
-              )}
+            {/* ABOUT */}
+<div className="mt-8">
+  <div className="text-sm font-semibold mb-2">About</div>
 
-              {phone && (
-                <a href={`tel:${phone}`} className="rounded-xl border px-4 py-2 text-sm font-semibold hover:bg-black/5">
-                  Call {phone}
-                </a>
-              )}
-            </div>
+  <div className="rounded-2xl border bg-white p-5 text-sm leading-relaxed">
+    {listing.writeup ? (
+      <div className="space-y-4 whitespace-pre-line">
+        {listing.writeup}
+      </div>
+    ) : (
+      <div className="opacity-70">
+        About content coming soon.
+      </div>
+    )}
+  </div>
+</div>
+
+
+            
           </div>
 
           {/* NEARBY */}
