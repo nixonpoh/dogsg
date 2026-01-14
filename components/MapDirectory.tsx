@@ -399,14 +399,19 @@ export default function MapDirectory() {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-4">
+    <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-4 h-[65vh] lg:h-[75vh] xl:h-[82vh]">
+
+
       {/* LEFT: MAP */}
       <div className="rounded-2xl border bg-white overflow-hidden shadow-sm ring-1 ring-pink-200">
-        <div ref={mapContainerRef} className="h-[72vh] lg:h-[82vh] w-full" />
+        <div ref={mapContainerRef} className="h-full w-full" />
+
       </div>
 
       {/* RIGHT: FILTERS + RESULTS */}
-      <div className="rounded-2xl border bg-white p-4 shadow-sm ring-1 ring-pink-200">
+      <div className="rounded-2xl border bg-white p-4 shadow-sm ring-1 ring-pink-200 flex flex-col h-full min-h-0">
+
+
         <div className="flex items-start justify-between gap-3">
           <div>
             <div className="text-lg font-extrabold">
@@ -457,7 +462,8 @@ export default function MapDirectory() {
           />
         </div>
 
-        <div className="mt-5">
+        <div className="mt-5 flex flex-col flex-1 min-h-0">
+
           <div className="font-semibold mb-2">Results ({filtered.length})</div>
           <div className="space-y-2 max-h-[55vh] overflow-auto pr-1">
             {filtered.map((l) => (
@@ -472,18 +478,7 @@ export default function MapDirectory() {
                   <div className="flex items-center gap-2">
                     <span className={catPillClass(l.category)}>{CATEGORY_LABELS[l.category]}</span>
 
-                    {l.verificationStatus ? (
-                      <span
-                        className={[
-                          "text-[11px] px-2 py-1 rounded-full border whitespace-nowrap font-semibold",
-                          l.verificationStatus === "verified"
-                            ? "bg-pink-500 text-white border-pink-500"
-                            : "bg-white",
-                        ].join(" ")}
-                      >
-                        {l.verificationStatus}
-                      </span>
-                    ) : null}
+                    
                   </div>
                 </div>
 
