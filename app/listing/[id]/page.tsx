@@ -187,12 +187,6 @@ export default function ListingPage({ params }: { params: { id: string } }) {
 </div>
 
 
-            
-
-
-
-
-
             {/* MAP */}
             <div className="mt-6">
               <div className="text-sm font-semibold mb-2">Map</div>
