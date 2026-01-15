@@ -34,7 +34,8 @@ export default function RootLayout({
                     dogfriendlyplaces.sg
                   </div>
                   <div className="text-sm opacity-70">
-                    Find dog-friendly places in Singapore
+                    Find dog-friendly places in Singapore <br></br>
+                    More than 100 reviews and above 4 &#11088; only
                   </div>
                 </div>
               </a>
