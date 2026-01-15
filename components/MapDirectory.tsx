@@ -444,7 +444,9 @@ if (typeof window !== "undefined") {
     <div className="grid h-auto lg:h-full min-h-0 grid-cols-1 gap-4 lg:grid-cols-[1fr_420px]">
 
       {/* LEFT: MAP */}
-      <div className="rounded-2xl border bg-white overflow-hidden shadow-sm ring-1 ring-pink-200 min-h-[320px] lg:min-h-0">
+      <div className="rounded-2xl border bg-white overflow-hidden shadow-sm ring-1 ring-pink-200 h-[45vh] lg:h-full">
+
+
         <div ref={mapContainerRef} className="h-full w-full" />
       </div>
 
