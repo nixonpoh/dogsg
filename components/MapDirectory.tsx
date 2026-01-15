@@ -215,15 +215,12 @@ export default function MapDirectory() {
 if (typeof window !== "undefined") {
   const isMobile = window.matchMedia("(max-width: 1023px)").matches;
   if (isMobile) {
-    // Enable dragPan with two fingers only
-    map.dragPan.enable({ linearity: 0.3, maxSpeed: 1400, deceleration: 2500, // smooth feel
-                         Easing: mapboxgl.easing.easeCubic, // nice easing curve
-                         touchZoomRotate: true, // allow pinch zoom
-                         touchRotate: true, // allow two-finger rotate
-                         interactive: true,
-                         doubleClickZoom: false // keep double-click zoom disabled if desired
-    });
-  }
+  // Enable two-finger pan and pinch-zoom
+  map.dragPan.enable();
+  map.touchZoomRotate.enable();
+  map.touchZoomRotate.enableRotation();
+}
+
 }
 
 
