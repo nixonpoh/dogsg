@@ -213,12 +213,19 @@ export default function MapDirectory() {
 
     // ✅ Mobile: allow vertical page scroll by disabling drag gestures on the map
 if (typeof window !== "undefined") {
-  const isMobile = window.matchMedia("(max-width: 1023px)").matches; // < lg
+  const isMobile = window.matchMedia("(max-width: 1023px)").matches;
   if (isMobile) {
-    map.dragPan.disable();
-    map.touchZoomRotate.disable();
+    // Enable dragPan with two fingers only
+    map.dragPan.enable({ linearity: 0.3, maxSpeed: 1400, deceleration: 2500, // smooth feel
+                         Easing: mapboxgl.easing.easeCubic, // nice easing curve
+                         touchZoomRotate: true, // allow pinch zoom
+                         touchRotate: true, // allow two-finger rotate
+                         interactive: true,
+                         doubleClickZoom: false // keep double-click zoom disabled if desired
+    });
   }
 }
+
 
 
     map.addControl(new mapboxgl.NavigationControl(), "top-right");
