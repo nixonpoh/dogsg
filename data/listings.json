@@ -8943,21 +8943,7 @@
     "verificationStatus": "verified",
     "openNow": null
   },
-  {
-    "id": "ChIJQecv9ic92jERuXyJFT4tAtQ",
-    "name": "Cats Garage Salon",
-    "category": "supplies",
-    "address": "169 Joo Chiat Rd, Level 3, Singapore 427729",
-    "lat": 1.3125708,
-    "lng": 103.9003395,
-    "website": "http://www.catsgarage.com.sg/",
-    "phone": "9190 0043",
-    "rating": 4.4,
-    "userRatingCount": 124,
-    "verificationStatus": "verified",
-    "verifiedBy": "reviews",
-    "openNow": null
-  },
+
   {
     "id": "ChIJ3SHNuB4R2jER_N-e49mqeic",
     "name": "Pets' Station (Rail Mall)",
@@ -9084,20 +9070,7 @@
     "verificationStatus": "verified",
     "openNow": null
   },
-  {
-    "id": "ChIJ55iJF1wX2jERMY-osWjGCqM",
-    "name": "Genetique Cats",
-    "category": "supplies",
-    "address": "101 Desker Rd, Singapore 209623",
-    "lat": 1.3085225999999999,
-    "lng": 103.8562407,
-    "website": "https://genetiquecats.sg/",
-    "phone": "8617 0470",
-    "rating": 5,
-    "userRatingCount": 106,
-    "verificationStatus": "verified",
-    "openNow": null
-  },
+
   {
     "id": "ChIJX4zD7_8N2jERA5PNyMR2c64",
     "name": "Arowana Centre",
