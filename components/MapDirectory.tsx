@@ -194,25 +194,7 @@ export default function MapDirectory() {
       .addTo(map);
   }
 
-  function flyToListing(listing: ListingWithDistance) {
-    const map = mapRef.current;
-    if (!map) return;
-
-    map.easeTo({
-      center: [listing.lng, listing.lat],
-      zoom: 15,
-      duration: 650,
-    });
-
-    openPopupAt(map, [listing.lng, listing.lat], {
-      id: listing.id,
-      name: listing.name,
-      category: listing.category,
-      address: listing.address,
-      rating: typeof listing.rating === "number" ? listing.rating : "",
-      userRatingCount: typeof listing.userRatingCount === "number" ? listing.userRatingCount : "",
-    });
-  }
+  
 
   // Init map once
   useEffect(() => {
@@ -506,12 +488,12 @@ if (typeof window !== "undefined") {
           <div className="font-semibold mb-2">Results ({filtered.length})</div>
 
           <div className="flex-1 min-h-0 overflow-auto pr-1 space-y-2">
-            {filtered.map((l) => (
-              <button
-                key={l.id}
-                onClick={() => flyToListing(l)}
-                className="w-full text-left rounded-2xl border p-3 hover:bg-pink-50 transition"
-              >
+           {filtered.map((l) => (
+  <a
+    key={l.id}
+    href={`/listing/${l.id}`}
+    className="block w-full text-left rounded-2xl border p-3 hover:bg-pink-50 transition"
+  >
                 <div className="flex items-start justify-between gap-2">
                   <div className="font-bold">{l.name}</div>
                   <div className="flex items-center gap-2">
@@ -526,7 +508,7 @@ if (typeof window !== "undefined") {
                   {typeof l.rating === "number" ? ` • ${l.rating}⭐` : ""}
                   {typeof l.userRatingCount === "number" ? ` • ${l.userRatingCount} reviews` : ""}
                 </div>
-              </button>
+ </a>
             ))}
 
             {filtered.length === 0 ? (
