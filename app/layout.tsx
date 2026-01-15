@@ -1,10 +1,13 @@
 import "./globals.css";
 import type { Metadata } from "next";
 
+
 export const metadata: Metadata = {
-  title: "dogfriendlyplaces.sg",
-  description: "Find dog-friendly places in Singapore",
+  title: "DogFriendlyPlaces.sg - Dog cafes, parks, groomers, vets near me and more!",
+  description: "Find a dog park near you and other dog-friendly places in Singapore easily."
 };
+
+
 
 export default function RootLayout({
   children,
