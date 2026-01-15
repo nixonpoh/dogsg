@@ -97,7 +97,7 @@ export default function ListingPage({ params }: { params: { id: string } }) {
   const showOpenNow = typeof listing.openNow === "boolean";
 
   return (
-    <main className="h-full overflow-auto">
+    <main className="min-h-screen">
 
       <div className="mx-auto max-w-5xl px-4 py-2">
         <a href="/" className="text-sm font-semibold underline">

@@ -1,16 +1,13 @@
 import dynamic from "next/dynamic";
 
-// Disable SSR for MapDirectory to prevent hydration mismatch with Mapbox
 const MapDirectory = dynamic(() => import("@/components/MapDirectory"), { ssr: false });
 
 export default function HomePage() {
   return (
-    <main className="min-h-screen">
-      <div className="mx-auto max-w-6xl px-4 py-0">
-
-
+    <div className="h-full">
+      <div className="mx-auto h-full max-w-6xl px-4 py-0">
         <MapDirectory />
       </div>
-    </main>
+    </div>
   );
 }

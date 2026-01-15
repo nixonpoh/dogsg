@@ -13,8 +13,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="h-full">
-      <body className="h-screen overflow-hidden bg-[#FFFBEF] text-black">
-        <div className="h-screen flex flex-col">
+      <body className="min-h-screen bg-[#FFFBEF] text-black">
+        <div className="h-screen flex flex-col overflow-hidden">
           {/* GLOBAL HEADER */}
           <header className="bg-white border-b shrink-0">
             <div className="mx-auto max-w-6xl px-4 py-2">
@@ -23,7 +23,7 @@ export default function RootLayout({
                 <img
                   src="/dogsglogo.png"
                   alt="dogfriendlyplaces.sg"
-                  className="h-20 w-auto"
+                  className="h-16 w-auto"
                 />
 
                 <div>
@@ -39,7 +39,9 @@ export default function RootLayout({
           </header>
 
           {/* PAGE CONTENT */}
-          <main className="flex-1 overflow-hidden">
+          <main className="flex-1 overflow-y-auto lg:overflow-hidden overscroll-contain">
+
+
             {children}
           </main>
         </div>

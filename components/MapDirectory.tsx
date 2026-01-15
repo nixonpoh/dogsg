@@ -67,24 +67,14 @@ function haversineKm(a: { lat: number; lng: number }, b: { lat: number; lng: num
 
 type ListingWithDistance = Listing & { distanceKm: number | null };
 
-/**
- * High-contrast category palette (requested):
- * - cafes: pink
- * - malls: blue
- * - hotels: slightly darker yellow
- * - pet supplies: orange
- * - parks: green
- * - vets: black
- * - clusters: grey
- */
 const CAT_COLORS = {
-  cafe: { bg: "bg-pink-500", ring: "ring-pink-500", text: "text-white", hex: "#EC4899" }, // pink-500
-  mall: { bg: "bg-blue-500", ring: "ring-blue-500", text: "text-white", hex: "#3B82F6" }, // blue-500
-  hotel: { bg: "bg-yellow-500", ring: "ring-yellow-500", text: "text-black", hex: "#EAB308" }, // yellow-500
-  supplies: { bg: "bg-orange-500", ring: "ring-orange-500", text: "text-white", hex: "#F97316" }, // orange-500
-  park: { bg: "bg-green-500", ring: "ring-green-500", text: "text-white", hex: "#22C55E" }, // green-500
-  vet: { bg: "bg-black", ring: "ring-black", text: "text-white", hex: "#111111" }, // near-black
-  groomer: { bg: "bg-fuchsia-500", ring: "ring-fuchsia-500", text: "text-white", hex: "#D946EF" }, // fun default
+  cafe: { bg: "bg-pink-500", ring: "ring-pink-500", text: "text-white", hex: "#EC4899" },
+  mall: { bg: "bg-blue-500", ring: "ring-blue-500", text: "text-white", hex: "#3B82F6" },
+  hotel: { bg: "bg-yellow-500", ring: "ring-yellow-500", text: "text-black", hex: "#EAB308" },
+  supplies: { bg: "bg-orange-500", ring: "ring-orange-500", text: "text-white", hex: "#F97316" },
+  park: { bg: "bg-green-500", ring: "ring-green-500", text: "text-white", hex: "#22C55E" },
+  vet: { bg: "bg-black", ring: "ring-black", text: "text-white", hex: "#111111" },
+  groomer: { bg: "bg-fuchsia-500", ring: "ring-fuchsia-500", text: "text-white", hex: "#D946EF" },
 } satisfies Record<Category, { bg: string; ring: string; text: string; hex: string }>;
 
 function catButtonClass(cat: Category, on: boolean) {
@@ -120,6 +110,7 @@ export default function MapDirectory() {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<Map | null>(null);
   const userMarkerRef = useRef<mapboxgl.Marker | null>(null);
+  const popupRef = useRef<mapboxgl.Popup | null>(null);
 
   const [selectedCategories, setSelectedCategories] = useState<Set<Category>>(
     new Set(Object.keys(CATEGORY_LABELS) as Category[])
@@ -151,13 +142,77 @@ export default function MapDirectory() {
           address: l.address,
           note: l.note ?? "",
           emoji: CATEGORY_EMOJI[l.category],
-          verificationStatus: l.verificationStatus ?? "",
           rating: l.rating ?? "",
           userRatingCount: l.userRatingCount ?? "",
         },
       })),
     };
   }, [filtered]);
+
+  function closePopup() {
+    if (popupRef.current) {
+      popupRef.current.remove();
+      popupRef.current = null;
+    }
+  }
+
+  function openPopupAt(map: Map, lngLat: [number, number], p: any) {
+    closePopup();
+
+    const cat = p.category as Category;
+    const rating = p.rating ? `${p.rating}⭐` : "";
+    const reviews = p.userRatingCount ? `${p.userRatingCount} reviews` : "";
+
+    const catColor = CAT_COLORS[cat]?.hex ?? "#111111";
+    const catTextColor = cat === "hotel" ? "#111111" : "#ffffff";
+
+    const funFont =
+      "ui-rounded, 'SF Pro Rounded', 'Segoe UI Rounded', 'Nunito', 'Quicksand', system-ui, -apple-system, Segoe UI, Roboto, Arial";
+
+    popupRef.current = new mapboxgl.Popup({ offset: 18, closeOnClick: true })
+      .setLngLat(lngLat)
+      .setHTML(
+        `<div style="font-family:${funFont};">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <a href="/listing/${p.id}" style="font-weight:900;text-decoration:none;color:#111111;">
+              ${p.name}
+            </a>
+            <span style="font-size:11px;padding:2px 8px;border-radius:999px;background:${catColor};color:${catTextColor};border:1px solid rgba(0,0,0,.1);font-weight:800;">
+              ${CATEGORY_LABELS[cat] ?? ""}
+            </span>
+          </div>
+          <div style="font-size:12px;opacity:.85;margin-bottom:6px;">${p.address}</div>
+          ${
+            rating || reviews
+              ? `<div style="font-size:12px;opacity:.9;margin-top:6px;"><b>Google:</b> ${[rating, reviews]
+                  .filter(Boolean)
+                  .join(" • ")}</div>`
+              : ""
+          }
+        </div>`
+      )
+      .addTo(map);
+  }
+
+  function flyToListing(listing: ListingWithDistance) {
+    const map = mapRef.current;
+    if (!map) return;
+
+    map.easeTo({
+      center: [listing.lng, listing.lat],
+      zoom: 15,
+      duration: 650,
+    });
+
+    openPopupAt(map, [listing.lng, listing.lat], {
+      id: listing.id,
+      name: listing.name,
+      category: listing.category,
+      address: listing.address,
+      rating: typeof listing.rating === "number" ? listing.rating : "",
+      userRatingCount: typeof listing.userRatingCount === "number" ? listing.userRatingCount : "",
+    });
+  }
 
   // Init map once
   useEffect(() => {
@@ -170,11 +225,25 @@ export default function MapDirectory() {
     const map = new mapboxgl.Map({
       container: mapContainerRef.current,
       style: "mapbox://styles/mapbox/streets-v12",
-      center: [103.8198, 1.3521], // Singapore
+      center: [103.8198, 1.3521],
       zoom: 10.8,
     });
 
+    // ✅ Mobile: allow vertical page scroll by disabling drag gestures on the map
+if (typeof window !== "undefined") {
+  const isMobile = window.matchMedia("(max-width: 1023px)").matches; // < lg
+  if (isMobile) {
+    map.dragPan.disable();
+    map.touchZoomRotate.disable();
+  }
+}
+
+
     map.addControl(new mapboxgl.NavigationControl(), "top-right");
+
+    // ✅ Make single-click feel correct
+    map.doubleClickZoom.disable();
+
     mapRef.current = map;
 
     map.on("load", () => {
@@ -186,7 +255,6 @@ export default function MapDirectory() {
         clusterRadius: 50,
       });
 
-      // ✅ Cluster circles (GREY)
       map.addLayer({
         id: "clusters",
         type: "circle",
@@ -194,7 +262,7 @@ export default function MapDirectory() {
         filter: ["has", "point_count"],
         paint: {
           "circle-radius": ["step", ["get", "point_count"], 18, 20, 24, 50, 30, 100, 36],
-          "circle-color": "#6B7280", // grey-500
+          "circle-color": "#6B7280",
           "circle-opacity": 0.9,
         },
       });
@@ -204,16 +272,10 @@ export default function MapDirectory() {
         type: "symbol",
         source: "listings",
         filter: ["has", "point_count"],
-        layout: {
-          "text-field": "{point_count_abbreviated}",
-          "text-size": 12,
-        },
-        paint: {
-          "text-color": "#ffffff",
-        },
+        layout: { "text-field": "{point_count_abbreviated}", "text-size": 12 },
+        paint: { "text-color": "#ffffff" },
       });
 
-      // Unclustered points as category-colored circles
       map.addLayer({
         id: "unclustered-circle",
         type: "circle",
@@ -245,7 +307,6 @@ export default function MapDirectory() {
         },
       });
 
-      // Emoji label on top of the circle
       map.addLayer({
         id: "unclustered-label",
         type: "symbol",
@@ -256,13 +317,13 @@ export default function MapDirectory() {
           "text-size": 12,
           "text-allow-overlap": true,
         },
-        paint: {
-          "text-color": "#111111",
-        },
+        paint: { "text-color": "#111111" },
       });
 
-      // Click cluster -> zoom in
+      // Click cluster -> zoom
       map.on("click", "clusters", (e: MapMouseEvent) => {
+        closePopup();
+
         const features = map.queryRenderedFeatures(e.point, { layers: ["clusters"] });
         if (!features.length) return;
 
@@ -277,57 +338,38 @@ export default function MapDirectory() {
         });
       });
 
-      // Click point -> popup
-      map.on("click", "unclustered-circle", (e: any) => {
-        const f = e.features?.[0];
-        if (!f) return;
+      // Click point -> popup (circle OR emoji)
+      const pointLayers = ["unclustered-circle", "unclustered-label"] as const;
+      pointLayers.forEach((layer) => {
+        map.on("click", layer, (e: any) => {
+          const f = e.features?.[0];
+          if (!f) return;
 
-        const coords = (f.geometry.coordinates as [number, number]).slice() as [number, number];
-        const p = f.properties as any;
+          const coords = (f.geometry.coordinates as [number, number]).slice() as [number, number];
+          const p = f.properties as any;
 
-        const cat = p.category as Category;
-        const rating = p.rating ? `${p.rating}⭐` : "";
-        const reviews = p.userRatingCount ? `${p.userRatingCount} reviews` : "";
+          openPopupAt(map, coords, p);
+        });
+      });
 
-        const catColor = CAT_COLORS[cat]?.hex ?? "#111111";
-        const catTextColor = cat === "hotel" ? "#111111" : "#ffffff";
-
-        // Fun font stack (no external font needed)
-        const funFont =
-          "ui-rounded, 'SF Pro Rounded', 'Segoe UI Rounded', 'Nunito', 'Quicksand', system-ui, -apple-system, Segoe UI, Roboto, Arial";
-
-        new mapboxgl.Popup({ offset: 18 })
-          .setLngLat(coords)
-          .setHTML(
-            `<div style="font-family:${funFont};">
-              <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-                <a href="/listing/${p.id}" style="font-weight:900;text-decoration:none;color:#111111;">
-                  ${p.name}
-                </a>
-                <span style="font-size:11px;padding:2px 8px;border-radius:999px;background:${catColor};color:${catTextColor};border:1px solid rgba(0,0,0,.1);font-weight:800;">
-                  ${CATEGORY_LABELS[cat] ?? ""}
-                </span>
-              </div>
-              <div style="font-size:12px;opacity:.85;margin-bottom:6px;">${p.address}</div>
-              ${
-                rating || reviews
-                  ? `<div style="font-size:12px;opacity:.9;margin-top:6px;"><b>Google:</b> ${[rating, reviews]
-                      .filter(Boolean)
-                      .join(" • ")}</div>`
-                  : ""
-              }
-            </div>`
-          )
-          .addTo(map);
+      // Clicking empty area closes popup
+      map.on("click", (e) => {
+        const features = map.queryRenderedFeatures(e.point, {
+          layers: ["clusters", "unclustered-circle", "unclustered-label"],
+        });
+        if (!features.length) closePopup();
       });
 
       map.on("mouseenter", "clusters", () => (map.getCanvas().style.cursor = "pointer"));
       map.on("mouseleave", "clusters", () => (map.getCanvas().style.cursor = ""));
       map.on("mouseenter", "unclustered-circle", () => (map.getCanvas().style.cursor = "pointer"));
       map.on("mouseleave", "unclustered-circle", () => (map.getCanvas().style.cursor = ""));
+      map.on("mouseenter", "unclustered-label", () => (map.getCanvas().style.cursor = "pointer"));
+      map.on("mouseleave", "unclustered-label", () => (map.getCanvas().style.cursor = ""));
     });
 
     return () => {
+      closePopup();
       map.remove();
       mapRef.current = null;
     };
@@ -358,7 +400,7 @@ export default function MapDirectory() {
     el.style.width = "14px";
     el.style.height = "14px";
     el.style.borderRadius = "50%";
-    el.style.background = "#2563eb"; // blue-600
+    el.style.background = "#2563eb";
     el.style.border = "3px solid white";
     el.style.boxShadow = "0 0 0 6px rgba(37, 99, 235, 0.25)";
 
@@ -399,19 +441,15 @@ export default function MapDirectory() {
   }
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-4 h-[65vh] lg:h-[75vh] xl:h-[82vh]">
-
+    <div className="grid h-auto lg:h-full min-h-0 grid-cols-1 gap-4 lg:grid-cols-[1fr_420px]">
 
       {/* LEFT: MAP */}
-      <div className="rounded-2xl border bg-white overflow-hidden shadow-sm ring-1 ring-pink-200">
+      <div className="rounded-2xl border bg-white overflow-hidden shadow-sm ring-1 ring-pink-200 min-h-[320px] lg:min-h-0">
         <div ref={mapContainerRef} className="h-full w-full" />
-
       </div>
 
       {/* RIGHT: FILTERS + RESULTS */}
-      <div className="rounded-2xl border bg-white p-4 shadow-sm ring-1 ring-pink-200 flex flex-col h-full min-h-0">
-
-
+      <div className="rounded-2xl border bg-white p-4 shadow-sm ring-1 ring-pink-200 flex flex-col min-h-0">
         <div className="flex items-start justify-between gap-3">
           <div>
             <div className="text-lg font-extrabold">
@@ -463,22 +501,19 @@ export default function MapDirectory() {
         </div>
 
         <div className="mt-5 flex flex-col flex-1 min-h-0">
-
           <div className="font-semibold mb-2">Results ({filtered.length})</div>
-          <div className="space-y-2 max-h-[55vh] overflow-auto pr-1">
+
+          <div className="flex-1 min-h-0 overflow-auto pr-1 space-y-2">
             {filtered.map((l) => (
               <button
                 key={l.id}
-                onClick={() => window.location.assign(`/listing/${l.id}`)}
+                onClick={() => flyToListing(l)}
                 className="w-full text-left rounded-2xl border p-3 hover:bg-pink-50 transition"
               >
                 <div className="flex items-start justify-between gap-2">
                   <div className="font-bold">{l.name}</div>
-
                   <div className="flex items-center gap-2">
                     <span className={catPillClass(l.category)}>{CATEGORY_LABELS[l.category]}</span>
-
-                    
                   </div>
                 </div>
 
