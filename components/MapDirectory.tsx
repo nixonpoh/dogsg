@@ -96,12 +96,9 @@ function catButtonClass(cat: Category, on: boolean) {
 
 function catPillClass(cat: Category) {
   const c = CAT_COLORS[cat];
-  return [
-    "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] ring-1 font-semibold",
-    c.bg,
-    c.text,
-    c.ring,
-  ].join(" ");
+  return ["inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] ring-1 font-semibold", c.bg, c.text, c.ring].join(
+    " "
+  );
 }
 
 export default function MapDirectory() {
@@ -119,6 +116,19 @@ export default function MapDirectory() {
   const [radiusKm, setRadiusKm] = useState<number>(5);
   const [geoError, setGeoError] = useState<string | null>(null);
 
+  // Search: user types here, but it won't apply until 🔍 is clicked / Enter is pressed.
+  const [searchText, setSearchText] = useState("");
+  const [appliedQuery, setAppliedQuery] = useState("");
+
+  function applySearch() {
+    setAppliedQuery(searchText.trim());
+  }
+
+  function clearSearch() {
+    setSearchText("");
+    setAppliedQuery("");
+  }
+
   const filtered: ListingWithDistance[] = useMemo(() => {
     const base = SAMPLE_LISTINGS.filter((l) => selectedCategories.has(l.category));
     if (!userPos) return base.map((l) => ({ ...l, distanceKm: null }));
@@ -129,10 +139,23 @@ export default function MapDirectory() {
       .sort((a, b) => (a.distanceKm ?? 0) - (b.distanceKm ?? 0));
   }, [selectedCategories, userPos, radiusKm]);
 
+  // Apply search only when appliedQuery changes (after 🔍 / Enter)
+  const searchFiltered: ListingWithDistance[] = useMemo(() => {
+    const q = appliedQuery.trim().toLowerCase();
+    if (!q) return filtered;
+
+    return filtered.filter((l) => {
+      const name = (l.name ?? "").toLowerCase();
+      const address = (l.address ?? "").toLowerCase();
+      return name.includes(q) || address.includes(q);
+    });
+  }, [filtered, appliedQuery]);
+
+  // IMPORTANT: geojson should use searchFiltered so pins match the applied search
   const geojson = useMemo(() => {
     return {
       type: "FeatureCollection" as const,
-      features: filtered.map((l) => ({
+      features: searchFiltered.map((l) => ({
         type: "Feature" as const,
         geometry: { type: "Point" as const, coordinates: [l.lng, l.lat] as [number, number] },
         properties: {
@@ -147,7 +170,7 @@ export default function MapDirectory() {
         },
       })),
     };
-  }, [filtered]);
+  }, [searchFiltered]);
 
   function closePopup() {
     if (popupRef.current) {
@@ -194,8 +217,6 @@ export default function MapDirectory() {
       .addTo(map);
   }
 
-  
-
   // Init map once
   useEffect(() => {
     if (!token) return;
@@ -211,23 +232,19 @@ export default function MapDirectory() {
       zoom: 10.8,
     });
 
-    // ✅ Mobile: allow vertical page scroll by disabling drag gestures on the map
-if (typeof window !== "undefined") {
-  const isMobile = window.matchMedia("(max-width: 1023px)").matches;
-  if (isMobile) {
-  // Enable two-finger pan and pinch-zoom
-  map.dragPan.enable();
-  map.touchZoomRotate.enable();
-  map.touchZoomRotate.enableRotation();
-}
-
-}
-
-
+    // Mobile gestures: allow two-finger pan + pinch zoom
+    if (typeof window !== "undefined") {
+      const isMobile = window.matchMedia("(max-width: 1023px)").matches;
+      if (isMobile) {
+        map.dragPan.enable();
+        map.touchZoomRotate.enable();
+        map.touchZoomRotate.enableRotation();
+      }
+    }
 
     map.addControl(new mapboxgl.NavigationControl(), "top-right");
 
-    // ✅ Make single-click feel correct
+    // Single-click feel
     map.doubleClickZoom.disable();
 
     mapRef.current = map;
@@ -361,7 +378,7 @@ if (typeof window !== "undefined") {
     };
   }, [token]);
 
-  // Update geojson data when filters change
+  // Update geojson data when filters/search apply
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -428,11 +445,8 @@ if (typeof window !== "undefined") {
 
   return (
     <div className="grid h-auto lg:h-full min-h-0 grid-cols-1 gap-4 lg:grid-cols-[1fr_420px]">
-
       {/* LEFT: MAP */}
       <div className="rounded-2xl border bg-white overflow-hidden shadow-sm ring-1 ring-pink-200 h-[45vh] lg:h-full">
-
-
         <div ref={mapContainerRef} className="h-full w-full" />
       </div>
 
@@ -489,15 +503,59 @@ if (typeof window !== "undefined") {
         </div>
 
         <div className="mt-5 flex flex-col flex-1 min-h-0">
-          <div className="font-semibold mb-2">Results ({filtered.length})</div>
+          {/* SEARCH BAR */}
+          <div className="mb-3">
+            <div className="text-sm font-semibold mb-1">Search</div>
+
+            <div className="flex gap-2">
+              <input
+                value={searchText}
+                onChange={(e) => setSearchText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") applySearch();
+                  if (e.key === "Escape") clearSearch();
+                }}
+                placeholder="Type a place or area… (e.g. Punggol)"
+                className="w-full rounded-xl border px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-pink-200"
+              />
+
+              <button
+                onClick={applySearch}
+                className="shrink-0 rounded-xl px-3 py-2 text-sm font-extrabold bg-pink-500 text-white hover:bg-pink-600"
+                aria-label="Search"
+                title="Search"
+              >
+                🔍
+              </button>
+
+              {appliedQuery ? (
+                <button
+                  onClick={clearSearch}
+                  className="shrink-0 rounded-xl px-3 py-2 text-sm font-extrabold border hover:bg-black/5"
+                  aria-label="Clear search"
+                  title="Clear"
+                >
+                  ✕
+                </button>
+              ) : null}
+            </div>
+
+            {appliedQuery ? (
+              <div className="mt-2 text-xs opacity-70">
+                Showing results for: <span className="font-semibold">{appliedQuery}</span>
+              </div>
+            ) : null}
+          </div>
+
+          <div className="font-semibold mb-2">Results ({searchFiltered.length})</div>
 
           <div className="flex-1 min-h-0 overflow-auto pr-1 space-y-2">
-           {filtered.map((l) => (
-  <a
-    key={l.id}
-    href={`/listing/${l.id}`}
-    className="block w-full text-left rounded-2xl border p-3 hover:bg-pink-50 transition"
-  >
+            {searchFiltered.map((l) => (
+              <a
+                key={l.id}
+                href={`/listing/${l.id}`}
+                className="block w-full text-left rounded-2xl border p-3 hover:bg-pink-50 transition"
+              >
                 <div className="flex items-start justify-between gap-2">
                   <div className="font-bold">{l.name}</div>
                   <div className="flex items-center gap-2">
@@ -512,12 +570,12 @@ if (typeof window !== "undefined") {
                   {typeof l.rating === "number" ? ` • ${l.rating}⭐` : ""}
                   {typeof l.userRatingCount === "number" ? ` • ${l.userRatingCount} reviews` : ""}
                 </div>
- </a>
+              </a>
             ))}
 
-            {filtered.length === 0 ? (
+            {searchFiltered.length === 0 ? (
               <div className="text-sm opacity-70 rounded-xl border p-3">
-                No results. Select more categories or increase radius.
+                No results. Try a different search, select more categories, or increase radius.
               </div>
             ) : null}
           </div>
