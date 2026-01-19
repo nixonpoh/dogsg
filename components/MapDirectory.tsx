@@ -10,6 +10,7 @@ type Category = "cafe" | "hotel" | "mall" | "park" | "groomer" | "vet" | "suppli
 
 type Listing = {
   id: string;
+  slug: string;
   name: string;
   category: Category;
   address: string;
@@ -96,9 +97,12 @@ function catButtonClass(cat: Category, on: boolean) {
 
 function catPillClass(cat: Category) {
   const c = CAT_COLORS[cat];
-  return ["inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] ring-1 font-semibold", c.bg, c.text, c.ring].join(
-    " "
-  );
+  return [
+    "inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[11px] ring-1 font-semibold",
+    c.bg,
+    c.text,
+    c.ring,
+  ].join(" ");
 }
 
 export default function MapDirectory() {
@@ -157,9 +161,13 @@ export default function MapDirectory() {
       type: "FeatureCollection" as const,
       features: searchFiltered.map((l) => ({
         type: "Feature" as const,
-        geometry: { type: "Point" as const, coordinates: [l.lng, l.lat] as [number, number] },
+        geometry: {
+          type: "Point" as const,
+          coordinates: [l.lng, l.lat] as [number, number],
+        },
         properties: {
           id: l.id,
+          slug: l.slug,
           name: l.name,
           category: l.category,
           address: l.address,
@@ -197,7 +205,7 @@ export default function MapDirectory() {
       .setHTML(
         `<div style="font-family:${funFont};">
           <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-            <a href="/listing/${p.id}" style="font-weight:900;text-decoration:none;color:#111111;">
+            <a href="/listing/${p.slug}" style="font-weight:900;text-decoration:none;color:#111111;">
               ${p.name}
             </a>
             <span style="font-size:11px;padding:2px 8px;border-radius:999px;background:${catColor};color:${catTextColor};border:1px solid rgba(0,0,0,.1);font-weight:800;">
@@ -553,7 +561,7 @@ export default function MapDirectory() {
             {searchFiltered.map((l) => (
               <a
                 key={l.id}
-                href={`/listing/${l.id}`}
+                href={`/listing/${l.slug}`}
                 className="block w-full text-left rounded-2xl border p-3 hover:bg-pink-50 transition"
               >
                 <div className="flex items-start justify-between gap-2">
