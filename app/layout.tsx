@@ -7,18 +7,6 @@ export const metadata: Metadata = {
   description: "Find a dog park near you and other dog-friendly places in Singapore easily.",
 };
 
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
-  return (
-    <html lang="en">
-      <head>
-        <meta name="google-site-verification" content="FtIPGVBP886-tJcv_3BEhBc9Uf8qfTxIf6lyhHKhUnY" />
-      </head>
-      <body>{children}</body>
-    </html>
-  );
-}
-
 export default function RootLayout({
   children,
 }: {
@@ -26,18 +14,18 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className="h-full">
+      <head>
+        <meta
+          name="google-site-verification"
+          content="FtIPGVBP886-tJcv_3BEhBc9Uf8qfTxIf6lyhHKhUnY"
+        />
+      </head>
+
       <body className="h-full bg-[#FFFBEF] text-black">
         {/* IMPORTANT: this is the scroll container */}
-        <div
-          id="app-scroll-container"
-          className="h-screen flex flex-col overflow-y-auto"
-        >
+        <div id="app-scroll-container" className="h-screen flex flex-col overflow-y-auto">
           {/* HEADER (scrolls away normally) */}
           <header className="bg-white border-b shrink-0">
-
-<meta name="google-site-verification" content="FtIPGVBP886-tJcv_3BEhBc9Uf8qfTxIf6lyhHKhUnY" />
-
-
             <div className="mx-auto max-w-6xl px-4 py-2">
               <a href="/" className="flex items-center gap-4 w-fit">
                 <img
@@ -59,9 +47,7 @@ export default function RootLayout({
           </header>
 
           {/* PAGE CONTENT */}
-          <main className="flex-1 min-h-0">
-            {children}
-          </main>
+          <main className="flex-1 min-h-0">{children}</main>
 
           {/* FLOATING SCROLL-TO-TOP BUTTON */}
           <ScrollToTopButton />
