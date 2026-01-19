@@ -7,6 +7,18 @@ export const metadata: Metadata = {
   description: "Find a dog park near you and other dog-friendly places in Singapore easily.",
 };
 
+
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <html lang="en">
+      <head>
+        <meta name="google-site-verification" content="FtIPGVBP886-tJcv_3BEhBc9Uf8qfTxIf6lyhHKhUnY" />
+      </head>
+      <body>{children}</body>
+    </html>
+  );
+}
+
 export default function RootLayout({
   children,
 }: {
@@ -24,7 +36,6 @@ export default function RootLayout({
           <header className="bg-white border-b shrink-0">
 
 <meta name="google-site-verification" content="FtIPGVBP886-tJcv_3BEhBc9Uf8qfTxIf6lyhHKhUnY" />
-
 
 
             <div className="mx-auto max-w-6xl px-4 py-2">
