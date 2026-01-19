@@ -117,9 +117,14 @@ export default function ListingPage({ params }: { params: { slug: string } }) {
 
             <div className="mt-6">
               <div className="font-semibold mb-2">About</div>
-              <div className="rounded-2xl border p-4 text-sm leading-relaxed">
-                {listing.writeup || "About content coming soon."}
-              </div>
+            <div className="rounded-2xl border p-5 text-sm leading-relaxed whitespace-pre-line">
+  {listing.writeup ? (
+    <div className="space-y-4">{listing.writeup}</div>
+  ) : (
+    <div className="opacity-70">About content coming soon.</div>
+  )}
+</div>
+
             </div>
           </div>
 
