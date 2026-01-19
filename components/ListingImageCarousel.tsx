@@ -14,11 +14,12 @@ export default function ListingImageCarousel({
   maxImages = 5,
   heightClassName = "h-[260px] md:h-[280px]",
 }: Props) {
-  // Pre-generate up to 5 image URLs (we’ll hide any that 404 via onError)
+  // Pre-generate image URLs (jpg + png)
   const initialUrls = useMemo(() => {
     const urls: string[] = [];
     for (let i = 1; i <= maxImages; i++) {
       urls.push(`/listing-images/${listingId}/${i}.jpg`);
+      urls.push(`/listing-images/${listingId}/${i}.png`);
     }
     return urls;
   }, [listingId, maxImages]);
@@ -45,7 +46,7 @@ export default function ListingImageCarousel({
     setIndex((i) => (i + 1) % urls.length);
   }
 
-  // ✅ CHANGE: If there are no images, don't render anything at all
+  // ✅ If no images exist, render nothing
   if (!hasImages) return null;
 
   return (
