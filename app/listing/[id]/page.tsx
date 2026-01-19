@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import listingsData from "../../../data/listings.json";
 import ListingMiniMap from "../../../components/ListingMiniMap";
+import ListingImageCarousel from "../../../components/ListingImageCarousel";
 
 type Category = "cafe" | "hotel" | "mall" | "park" | "groomer" | "vet" | "supplies";
 
@@ -98,7 +99,6 @@ export default function ListingPage({ params }: { params: { id: string } }) {
 
   return (
     <main className="min-h-screen">
-
       <div className="mx-auto max-w-5xl px-4 py-2">
         <a href="/" className="text-sm font-semibold underline">
           ← Back to map
@@ -112,24 +112,21 @@ export default function ListingPage({ params }: { params: { id: string } }) {
               <div>
                 <div className="text-xs opacity-70">{CATEGORY_LABELS[listing.category]}</div>
                 <h1 className="mt-2 text-3xl md:text-4xl font-extrabold tracking-tight">{listing.name}</h1>
-                <div className="mt-2 text-sm opacity-80">
-  <span className="font-semibold">Address:</span> {listing.address}
-</div>
 
+                <div className="mt-2 text-sm opacity-80">
+                  <span className="font-semibold">Address:</span> {listing.address}
+                </div>
 
                 {(typeof listing.rating === "number" || typeof listing.userRatingCount === "number") && (
-  <div className="mt-2 text-sm opacity-80">
-    <span className="font-semibold">From Google: </span>{" "}
-    {typeof listing.rating === "number" ? `${listing.rating}⭐` : ""}
-    {typeof listing.userRatingCount === "number" ? ` • ${listing.userRatingCount} reviews` : ""}
-  </div>
-)}
-
+                  <div className="mt-2 text-sm opacity-80">
+                    <span className="font-semibold">From Google: </span>{" "}
+                    {typeof listing.rating === "number" ? `${listing.rating}⭐` : ""}
+                    {typeof listing.userRatingCount === "number" ? ` • ${listing.userRatingCount} reviews` : ""}
+                  </div>
+                )}
               </div>
 
               <div className="flex flex-col items-end gap-2">
-               
-
                 {showOpenNow && (
                   <span
                     className={[
@@ -150,42 +147,37 @@ export default function ListingPage({ params }: { params: { id: string } }) {
               </div>
             )}
 
+            {/* ACTIONS ABOVE MAP */}
+            <div className="mt-4 flex flex-col gap-2">
+              {website && (
+                <a
+                  href={website}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="w-full rounded-xl border px-4 py-2 text-sm font-semibold hover:bg-black/5"
+                >
+                  Website ({prettyUrl(website)})
+                </a>
+              )}
 
+              {phone && (
+                <a
+                  href={`tel:${phone}`}
+                  className="w-full rounded-xl border px-4 py-2 text-sm font-semibold hover:bg-black/5"
+                >
+                  Call {phone}
+                </a>
+              )}
 
-
-
-{/* ACTIONS ABOVE MAP */}
-<div className="mt-4 flex flex-col gap-2">
-  {website && (
-    <a
-      href={website}
-      target="_blank"
-      rel="noreferrer"
-      className="w-full rounded-xl border px-4 py-2 text-sm font-semibold hover:bg-black/5"
-    >
-      Website ({prettyUrl(website)})
-    </a>
-  )}
-
-  {phone && (
-    <a
-      href={`tel:${phone}`}
-      className="w-full rounded-xl border px-4 py-2 text-sm font-semibold hover:bg-black/5"
-    >
-      Call {phone}
-    </a>
-  )}
-
-  <a
-    href={googleMapsPinUrl}
-    target="_blank"
-    rel="noreferrer"
-    className="w-full rounded-xl border px-4 py-2 text-sm font-semibold hover:bg-black/5"
-  >
-    Open in Google Maps
-  </a>
-</div>
-
+              <a
+                href={googleMapsPinUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="w-full rounded-xl border px-4 py-2 text-sm font-semibold hover:bg-black/5"
+              >
+                Open in Google Maps
+              </a>
+            </div>
 
             {/* MAP */}
             <div className="mt-6">
@@ -193,36 +185,37 @@ export default function ListingPage({ params }: { params: { id: string } }) {
               <ListingMiniMap lat={listing.lat} lng={listing.lng} name={listing.name} />
             </div>
 
-
             {/* ABOUT */}
-<div className="mt-8">
-  <div className="text-sm font-semibold mb-2">About</div>
+            <div className="mt-8">
+              <div className="text-sm font-semibold mb-2">About</div>
 
-  <div className="rounded-2xl border bg-white p-5 text-sm leading-relaxed">
-    {listing.writeup ? (
-      <div className="space-y-4 whitespace-pre-line">
-        {listing.writeup}
-      </div>
-    ) : (
-      <div className="opacity-70">
-        About content coming soon.
-      </div>
-    )}
-  </div>
-</div>
-
-
-            
+              <div className="rounded-2xl border bg-white p-5 text-sm leading-relaxed">
+                {listing.writeup ? (
+                  <div className="space-y-4 whitespace-pre-line">{listing.writeup}</div>
+                ) : (
+                  <div className="opacity-70">About content coming soon.</div>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* NEARBY */}
           <div className="rounded-2xl border bg-white p-6 shadow-sm">
+            {/* ✅ NEW: Image Carousel */}
+            <div className="mb-4">
+              <ListingImageCarousel listingId={listing.id} />
+            </div>
+
             <div className="text-lg font-extrabold">Nearby places</div>
             <div className="text-sm opacity-75">Within ~3 km</div>
 
             <div className="mt-4 space-y-2">
               {nearby.map((n) => (
-                <a key={n.id} href={`/listing/${n.id}`} className="block rounded-2xl border p-3 hover:bg-black/5 transition">
+                <a
+                  key={n.id}
+                  href={`/listing/${n.id}`}
+                  className="block rounded-2xl border p-3 hover:bg-black/5 transition"
+                >
                   <div className="font-bold">{n.name}</div>
                   <div className="text-sm opacity-75">{n.address}</div>
                   <div className="text-xs opacity-70 mt-1">
