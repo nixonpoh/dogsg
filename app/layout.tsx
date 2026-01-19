@@ -22,6 +22,11 @@ export default function RootLayout({
         >
           {/* HEADER (scrolls away normally) */}
           <header className="bg-white border-b shrink-0">
+
+<meta name="google-site-verification" content="FtIPGVBP886-tJcv_3BEhBc9Uf8qfTxIf6lyhHKhUnY" />
+
+
+
             <div className="mx-auto max-w-6xl px-4 py-2">
               <a href="/" className="flex items-center gap-4 w-fit">
                 <img
