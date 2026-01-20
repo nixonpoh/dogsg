@@ -2,12 +2,14 @@ import type { MetadataRoute } from "next";
 import listings from "../data/listings.json";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://dogfriendlyplaces.sg"; // change to your real domain / vercel domain
+  const baseUrl = "https://dogfriendlyplaces.vercel.app";
 
-  const listingUrls = (listings as any[]).map((l) => ({
-    url: `${baseUrl}/listing/${l.id}`,
-    lastModified: new Date(),
-  }));
+  const urls = (listings as any[])
+    .filter((l) => l.slug) // only those that have slug
+    .map((l) => ({
+      url: `${baseUrl}/listing/${l.slug}`,
+      lastModified: new Date(),
+    }));
 
-  return [{ url: baseUrl, lastModified: new Date() }, ...listingUrls];
+  return [{ url: baseUrl, lastModified: new Date() }, ...urls];
 }
