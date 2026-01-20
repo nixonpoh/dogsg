@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://dogfriendlyplaces.vercel.app
+
+# Sitemaps
+Sitemap: https://dogfriendlyplaces.vercel.app/sitemap.xml
