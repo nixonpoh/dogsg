@@ -502,7 +502,7 @@ export default function MapDirectory() {
           <input
             type="range"
             min={1}
-            max={15}
+            max={20}
             value={radiusKm}
             onChange={(e) => setRadiusKm(Number(e.target.value))}
             disabled={!userPos}
